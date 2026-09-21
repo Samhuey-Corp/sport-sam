@@ -87,6 +87,8 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;max-wi
 .run.rest .clock{color:var(--calm)}
 .run.done .clock{color:var(--ok)}
 .manual .clock{opacity:.35}
+.run.hold .clock{opacity:.45}
+.run.hold .lbl::after{content:' — en attente';color:var(--dim);font-weight:400;font-size:17px}
 </style>
 </head>
 <body>
@@ -297,11 +299,15 @@ function vueRun(seance){
   function stepElapsed(){
     return run.acc + (run.paused ? 0 : (performance.now() - run.t0) / 1000);
   }
-  function setStep(i){
+  // enAttente : l'étape est prête mais le chrono ne part qu'au prochain appui
+  // sur Reprendre. Vrai pour chaque transition ; seul « Démarrer la séance »
+  // lance directement.
+  function setStep(i, enAttente){
     if (i < 0) i = 0;
     if (i >= steps.length) return finish();
     run.done = steps.slice(0, i).reduce((a, s) => a + s.t, 0);
     run.i = i; run.acc = 0; run.t0 = performance.now(); run.lastBeep = null;
+    run.paused = !!enAttente;
     paint();
   }
   function paint(){
@@ -321,6 +327,7 @@ function vueRun(seance){
     if (!s.manuel) q('.clock').textContent = mmss(s.t - stepElapsed()); // évite un 0:00 avant le 1er tick
     el.classList.toggle('rest', estRecup(s.label));
     el.classList.toggle('manual', s.manuel);
+    el.classList.toggle('hold', run.paused);
     q('.main').textContent = s.manuel ? 'Terminé, continuer' : (run.paused ? 'Reprendre' : 'Pause');
   }
   function finish(){
@@ -342,13 +349,13 @@ function vueRun(seance){
 
   q('.main').onclick = () => {
     const s = steps[run.i];
-    if (s.manuel) return setStep(run.i + 1);
+    if (s.manuel) return setStep(run.i + 1, true);
     if (run.paused) { run.t0 = performance.now(); run.paused = false; keepAwake(true); }
     else { run.acc = stepElapsed(); run.paused = true; keepAwake(false); }
     paint();
   };
-  q('.skip').onclick = () => setStep(run.i + 1);
-  q('.prev').onclick = () => setStep(stepElapsed() > 2 ? run.i : run.i - 1);
+  q('.skip').onclick = () => setStep(run.i + 1, true);
+  q('.prev').onclick = () => setStep(stepElapsed() > 2 ? run.i : run.i - 1, true);
 
   const id = setInterval(() => {
     if (!run) return;
@@ -359,9 +366,9 @@ function vueRun(seance){
       q('.clock').textContent = mmss(rem);
       const sec = Math.ceil(rem);
       if (sec <= 3 && sec >= 1 && sec !== run.lastBeep && !run.paused) { run.lastBeep = sec; tick(); }
-      if (rem <= 0) {
-        gong(); buzz(120);
-        return setStep(run.i + 1);
+      if (rem <= 0 && !run.paused) {
+        gong(); buzz([150, 80, 150]);
+        return setStep(run.i + 1, true);
       }
     } else {
       q('.clock').textContent = '—';

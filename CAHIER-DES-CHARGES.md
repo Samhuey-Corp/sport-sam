@@ -124,6 +124,12 @@ séances à venir.
   même si l'application passe en arrière-plan.
 - **L'application démarre sans réseau** une fois qu'elle a été ouverte au moins
   une fois : ses fichiers sont gardés en cache sur l'appareil.
+- **Chaque changement d'étape attend un appui.** Quand un chrono arrive à zéro,
+  l'application sonne et vibre, affiche l'étape suivante à l'arrêt et ne repart
+  qu'au bouton *Reprendre*. Même chose après *Suivant* et *Précédent*. Seul
+  *Démarrer la séance* lance le chronomètre directement.
+- Une étape en attente se reconnaît au chrono grisé et à la mention
+  « en attente » à côté de la consigne.
 - *Précédent* revient au début de l'étape en cours, puis à l'étape précédente.
 - Pause et reprise n'entraînent aucune dérive du chronomètre.
 - Les temps de récupération s'affichent en bleu, les efforts en orange.

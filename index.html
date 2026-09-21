@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sport Sam">
+<meta name="theme-color" content="#0b0f14">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Appli sport Sam</title>
+<style>
+:root{
+  --bg:#0b0f14; --panel:#151c25; --panel2:#1d2733; --line:#2a3644;
+  --txt:#e8edf3; --dim:#8b9bb0; --accent:#ff7a45; --ok:#3ddc84; --calm:#4aa3ff;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--txt);
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overscroll-behavior:none;
+}
+header{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);flex:0 0 auto}
+header h1{font-size:18px;margin:0;font-weight:600;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#back{background:none;border:0;color:var(--txt);font-size:28px;line-height:1;
+  padding:0 6px;cursor:pointer;visibility:hidden}
+#back.on{visibility:visible}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;max-width:560px;width:100%;margin:0 auto}
+
+.card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  color:var(--txt);font:inherit;padding:16px;margin-bottom:10px;cursor:pointer}
+.card:active{background:var(--panel2)}
+.card .em{font-size:26px}
+.card b{display:block;font-size:17px}
+.card small{color:var(--dim)}
+.card .chev{margin-left:auto;color:var(--dim);font-size:22px}
+
+.phase{margin:0 0 18px}
+.phase>h2{font-size:13px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--dim);margin:0 0 8px}
+.bloc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:8px}
+.bloc .top{display:flex;align-items:baseline;gap:8px}
+.bloc .top b{font-size:16px}
+.bloc .top .dur{margin-left:auto;color:var(--accent);font-variant-numeric:tabular-nums}
+.bloc .reps{font-size:12px;background:var(--accent);color:#1a0d06;border-radius:20px;
+  padding:1px 8px;font-weight:700}
+.bloc ul{margin:8px 0 0;padding:0;list-style:none;border-top:1px solid var(--line);padding-top:8px}
+.bloc li{display:flex;color:var(--dim);font-size:14px;padding:2px 0}
+.bloc li span:last-child{margin-left:auto;font-variant-numeric:tabular-nums}
+
+.total{display:flex;justify-content:space-between;color:var(--dim);
+  padding:10px 2px 16px;border-top:1px solid var(--line);margin-top:4px}
+.total b{color:var(--txt)}
+.note{color:var(--dim);font-size:14px;margin:0 0 16px}
+
+.go{position:sticky;bottom:0;width:100%;padding:16px;border:0;border-radius:var(--r);
+  background:var(--accent);color:#1a0d06;font:700 18px/1 inherit;cursor:pointer;margin-top:8px}
+.go:active{filter:brightness(.9)}
+
+/* --- runner --- */
+.run{display:flex;flex-direction:column;height:100%;text-align:center;gap:6px}
+.run .ph{margin-top:auto;color:var(--dim);font-size:13px;text-transform:uppercase;letter-spacing:.09em}
+.run .bl{font-size:20px;font-weight:600}
+.run .force{display:inline-block;background:var(--accent);color:#1a0d06;
+  border-radius:20px;padding:2px 12px;font-weight:700;font-size:15px;margin-top:4px}
+.run .clock{font:800 clamp(60px,22vw,104px)/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-variant-numeric:tabular-nums;margin:10px 0 2px}
+.run .lbl{font-size:26px;font-weight:600;min-height:34px}
+.run .next{color:var(--dim);font-size:14px;min-height:20px}
+.bar{height:6px;background:var(--panel2);border-radius:6px;overflow:hidden;margin:14px 0 8px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s linear}
+.run .glob{display:flex;justify-content:space-between;color:var(--dim);font-size:13px;
+  font-variant-numeric:tabular-nums}
+.ctrl{display:flex;gap:10px;margin-top:auto;padding-top:16px}
+.ctrl button{flex:1;padding:16px 8px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);color:var(--txt);font:600 15px/1 inherit;cursor:pointer}
+.ctrl button.main{background:var(--accent);color:#1a0d06;border-color:transparent;flex:2}
+.ctrl button:active{filter:brightness(.85)}
+.run.rest .clock{color:var(--calm)}
+.run.done .clock{color:var(--ok)}
+.manual .clock{opacity:.35}
+</style>
+</head>
+<body>
+<header><button id="back" aria-label="Retour">‹</button><h1 id="title">Choix du sport</h1></header>
+<main id="app"></main>
+
+<script src="seances.js"></script>
+<script>
+'use strict';
+
+/* ---------- utilitaires ---------- */
+const $ = (h) => { const d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstChild; };
+const app = document.getElementById('app');
+const titleEl = document.getElementById('title');
+const backEl = document.getElementById('back');
+
+function mmss(s){
+  s = Math.max(0, Math.ceil(s));
+  const m = Math.floor(s / 60);
+  return m + ':' + String(s % 60).padStart(2, '0');
+}
+function human(s){
+  const m = Math.floor(s / 60), r = Math.round(s % 60);
+  if (m >= 60) return Math.floor(m / 60) + 'h' + String(m % 60).padStart(2, '0');
+  return r ? m + ' min ' + String(r).padStart(2, '0') : m + ' min';
+}
+
+/* Déplie une séance en liste plate d'étapes chronométrées. */
+function flatten(seance){
+  const out = [];
+  for (const ph of seance.phases) {
+    for (const b of ph.blocs) {
+      const reps = b.reps || 1;
+      const steps = b.steps || [{ l: b.l, t: b.t }];
+      for (let r = 0; r < reps; r++) {
+        for (const s of steps) {
+          out.push({
+            phase: ph.nom, bloc: b.l, force: b.force,
+            rep: reps > 1 ? (r + 1) + '/' + reps : null,
+            label: s.l, t: s.t || 0, manuel: !!s.manuel,
+          });
+        }
+      }
+    }
+  }
+  return out;
+}
+const blocDuree = (b) => (b.reps || 1) * (b.steps ? b.steps.reduce((a, s) => a + (s.t || 0), 0) : b.t);
+const seanceDuree = (s) => s.phases.reduce((a, p) => a + p.blocs.reduce((x, b) => x + blocDuree(b), 0), 0);
+const estRecup = (l) => /lent|récup|recup|repos|calme|assis|descente/i.test(l);
+
+/* ---------- son (WebAudio, aucun fichier) ---------- */
+let actx = null;
+function beep(freq, dur, vol){
+  if (!actx) return;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start(); o.stop(actx.currentTime + dur);
+}
+function unlockAudio(){
+  // iOS exige un geste utilisateur pour autoriser le son : appelé depuis « Démarrer ».
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  beep(880, 0.01, 0.001);
+}
+const tick = () => beep(880, 0.09, 0.25);
+const gong = () => { beep(523, 0.18, 0.35); setTimeout(() => beep(784, 0.35, 0.35), 150); };
+const buzz = (n) => navigator.vibrate && navigator.vibrate(n);
+
+/* ---------- veille écran ---------- */
+let lock = null;
+async function keepAwake(on){
+  try {
+    if (on && !lock && navigator.wakeLock) lock = await navigator.wakeLock.request('screen');
+    if (!on && lock) { lock.release(); lock = null; }
+  } catch (_) { /* non supporté : l'écran s'éteindra, sans conséquence sur le chrono */ }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && run) keepAwake(true);
+});
+
+/* ---------- navigation ---------- */
+let stack = [];
+function go(view, titre){
+  stack.push({ view, titre });
+  render();
+}
+function back(){
+  stack.pop();
+  render();
+}
+backEl.onclick = () => {
+  if (run && !confirm('Arrêter la séance en cours ?')) return;
+  stopRun();
+  back();
+};
+function render(){
+  const cur = stack[stack.length - 1];
+  titleEl.textContent = cur.titre;
+  backEl.classList.toggle('on', stack.length > 1);
+  app.innerHTML = '';
+  app.scrollTop = 0;
+  cur.view();
+}
+
+/* ---------- écran 1 : sports ---------- */
+function vueSports(){
+  for (const sp of SPORTS) {
+    const c = $(`<button class="card"><span class="em">${sp.icone}</span>
+      <span><b>${sp.nom}</b><small>${sp.seances.length} séance${sp.seances.length > 1 ? 's' : ''}</small></span>
+      <span class="chev">›</span></button>`);
+    c.onclick = () => go(() => vueSeances(sp), sp.nom);
+    app.append(c);
+  }
+}
+
+/* ---------- écran 2 : séances d'un sport ---------- */
+function vueSeances(sp){
+  if (sp.note) app.append($(`<p class="note">${sp.note}</p>`));
+  for (const s of sp.seances) {
+    const sub = s.libre ? (s.desc || 'Libre') : [s.desc, human(seanceDuree(s))].filter(Boolean).join(' · ');
+    const c = $(`<button class="card"><span><b>${s.nom}</b><small>${sub}</small></span>
+      <span class="chev">›</span></button>`);
+    c.onclick = () => s.libre
+      ? go(() => vueChrono(s), sp.nom + ' — ' + s.nom)
+      : go(() => vueDetail(s), sp.nom + ' — ' + s.nom);
+    app.append(c);
+  }
+}
+
+/* ---------- écran 3 : détail d'une séance ---------- */
+function vueDetail(s){
+  for (const ph of s.phases) {
+    const sec = $(`<section class="phase"><h2>${ph.nom}</h2></section>`);
+    for (const b of ph.blocs) {
+      const el = $(`<div class="bloc"><div class="top">
+        <b>${b.l}</b>${b.reps ? `<span class="reps">×${b.reps}</span>` : ''}
+        <span class="dur">${human(blocDuree(b))}</span></div></div>`);
+      if (b.steps) {
+        const ul = document.createElement('ul');
+        for (const st of b.steps) {
+          ul.append($(`<li><span>${st.l}</span><span>${st.manuel ? 'libre' : mmss(st.t)}</span></li>`));
+        }
+        el.append(ul);
+      }
+      sec.append(el);
+    }
+    app.append(sec);
+  }
+  app.append($(`<div class="total"><span>Durée totale</span><b>${human(seanceDuree(s))}</b></div>`));
+  const btn = $(`<button class="go">Démarrer la séance</button>`);
+  btn.onclick = () => { unlockAudio(); go(() => vueRun(s), s.nom); };
+  app.append(btn);
+}
+
+/* ---------- écran 4 : chronomètre libre (VTT) ---------- */
+function vueChrono(s){
+  const el = $(`<div class="run"><div class="ph">${s.nom}</div>
+    <div class="bl">Sortie libre</div>
+    <div class="clock">0:00</div><div class="lbl">En route</div><div class="next"></div>
+    <div class="ctrl"><button class="main">Démarrer</button></div></div>`);
+  app.append(el);
+  const clock = el.querySelector('.clock'), btn = el.querySelector('.main');
+  let t0 = null, acc = 0, id = null;
+  const show = () => clock.textContent = mmss(acc + (t0 ? (performance.now() - t0) / 1000 : 0));
+  btn.onclick = () => {
+    if (t0) { acc += (performance.now() - t0) / 1000; t0 = null; btn.textContent = 'Reprendre'; keepAwake(false); }
+    else { unlockAudio(); t0 = performance.now(); btn.textContent = 'Pause'; keepAwake(true); }
+    show();
+  };
+  id = setInterval(show, 250);
+  cleanups.push(() => { clearInterval(id); keepAwake(false); });
+}
+
+/* ---------- écran 5 : déroulé de la séance ---------- */
+let run = null;
+let cleanups = [];
+function stopRun(){
+  cleanups.forEach((f) => f());
+  cleanups = [];
+  run = null;
+  keepAwake(false);
+}
+
+function vueRun(seance){
+  const steps = flatten(seance);
+  const total = steps.reduce((a, s) => a + s.t, 0);
+
+  const el = $(`<div class="run">
+    <div class="ph"></div><div class="bl"></div><div><span class="force"></span></div>
+    <div class="clock">0:00</div><div class="lbl"></div><div class="next"></div>
+    <div class="bar"><i></i></div>
+    <div class="glob"><span class="el"></span><span class="re"></span></div>
+    <div class="ctrl">
+      <button class="prev">Précédent</button>
+      <button class="main">Pause</button>
+      <button class="skip">Suivant</button>
+    </div></div>`);
+  app.append(el);
+  const q = (c) => el.querySelector(c);
+
+  run = { i: 0, t0: performance.now(), acc: 0, paused: false, done: 0, lastBeep: null };
+  keepAwake(true);
+
+  function stepElapsed(){
+    return run.acc + (run.paused ? 0 : (performance.now() - run.t0) / 1000);
+  }
+  function setStep(i){
+    if (i < 0) i = 0;
+    if (i >= steps.length) return finish();
+    run.done = steps.slice(0, i).reduce((a, s) => a + s.t, 0);
+    run.i = i; run.acc = 0; run.t0 = performance.now(); run.lastBeep = null;
+    paint();
+  }
+  function paint(){
+    const s = steps[run.i], nx = steps[run.i + 1];
+    q('.ph').textContent = s.phase;
+    // on n'affiche le nom du bloc que s'il apporte une info de plus que
+    // l'étape en cours et que la pastille « Force N »
+    const tete = [];
+    if (s.bloc !== s.label && s.bloc !== 'Force ' + s.force) tete.push(s.bloc);
+    if (s.rep) tete.push('Série ' + s.rep);
+    q('.bl').textContent = tete.join('  ·  ');
+    const f = q('.force');
+    f.textContent = s.force ? 'Force ' + s.force : '';
+    f.style.display = s.force ? '' : 'none';
+    q('.lbl').textContent = s.label;
+    q('.next').textContent = nx ? 'Ensuite : ' + nx.label + (nx.manuel ? '' : ' (' + mmss(nx.t) + ')') : 'Dernière étape';
+    if (!s.manuel) q('.clock').textContent = mmss(s.t - stepElapsed()); // évite un 0:00 avant le 1er tick
+    el.classList.toggle('rest', estRecup(s.label));
+    el.classList.toggle('manual', s.manuel);
+    q('.main').textContent = s.manuel ? 'Terminé, continuer' : (run.paused ? 'Reprendre' : 'Pause');
+  }
+  function finish(){
+    stopRun();
+    gong(); buzz([200, 100, 200]);
+    el.classList.add('done'); el.classList.remove('rest', 'manual');
+    q('.ph').textContent = seance.nom;
+    q('.bl').textContent = 'Séance terminée';
+    q('.force').style.display = 'none';
+    q('.clock').textContent = human(total);
+    q('.lbl').textContent = 'Bravo 👏';
+    q('.next').textContent = '';
+    q('.bar i').style.width = '100%';
+    q('.ctrl').innerHTML = '';
+    const b = $(`<button class="main">Retour</button>`);
+    b.onclick = back;
+    q('.ctrl').append(b);
+  }
+
+  q('.main').onclick = () => {
+    const s = steps[run.i];
+    if (s.manuel) return setStep(run.i + 1);
+    if (run.paused) { run.t0 = performance.now(); run.paused = false; keepAwake(true); }
+    else { run.acc = stepElapsed(); run.paused = true; keepAwake(false); }
+    paint();
+  };
+  q('.skip').onclick = () => setStep(run.i + 1);
+  q('.prev').onclick = () => setStep(stepElapsed() > 2 ? run.i : run.i - 1);
+
+  const id = setInterval(() => {
+    if (!run) return;
+    const s = steps[run.i];
+    const rem = s.manuel ? 0 : s.t - stepElapsed();
+
+    if (!s.manuel) {
+      q('.clock').textContent = mmss(rem);
+      const sec = Math.ceil(rem);
+      if (sec <= 3 && sec >= 1 && sec !== run.lastBeep && !run.paused) { run.lastBeep = sec; tick(); }
+      if (rem <= 0) {
+        gong(); buzz(120);
+        return setStep(run.i + 1);
+      }
+    } else {
+      q('.clock').textContent = '—';
+    }
+    const elapsed = run.done + (s.manuel ? 0 : Math.min(s.t, stepElapsed()));
+    q('.bar i').style.width = (total ? (elapsed / total) * 100 : 0) + '%';
+    q('.el').textContent = 'Écoulé ' + mmss(elapsed);
+    q('.re').textContent = 'Reste ' + mmss(total - elapsed);
+  }, 200);
+  cleanups.push(() => clearInterval(id));
+
+  paint();
+}
+
+go(vueSports, 'Choix du sport');
+</script>
+</body>
+</html>

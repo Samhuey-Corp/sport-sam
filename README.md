@@ -17,6 +17,7 @@ Puis ouvrir http://localhost:8777
 |---|---|
 | `index.html` | toute l'application (styles + logique) |
 | `seances.js` | contenu des séances — le seul fichier à modifier pour ajouter un entraînement |
+| `sw.js` | cache hors-ligne — bump `CACHE` à chaque déploiement |
 | `manifest.webmanifest` | installation sur l'écran d'accueil |
 | `CAHIER-DES-CHARGES.md` | spécification à valider par le client |
 

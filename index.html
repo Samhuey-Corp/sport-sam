@@ -377,6 +377,12 @@ function vueRun(seance){
 }
 
 go(vueSports, 'Choix du sport');
+
+/* Hors-ligne : l'app doit démarrer dans une salle sans réseau.
+   Ignoré en file:// et sur les navigateurs sans service worker. */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>

@@ -8,7 +8,8 @@
  *   - répété    : { l:"Force 7", force:7, reps:10, steps:[{l:"rapide",t:30},{l:"lent",t:30}] }
  *
  * t = durée en secondes. manuel:true = étape sans chrono, l'utilisateur appuie
- * pour passer à la suite (ex : la descente d'une côte, durée variable).
+ * pour passer à la suite. Supporté mais inutilisé : le client a fixé la descente
+ * des côtes à 1 min plutôt que de la laisser libre.
  *
  * ponytail: tout en dur ici. Pas d'éditeur de séances tant que le client
  * n'en demande pas un — ce fichier se modifie à la main en 10 secondes.
@@ -56,7 +57,7 @@ const SPORTS = [
               },
               { l: 'Force 3', force: 3, t: m(2) },
               {
-                // À CONFIRMER : la maquette annonce 8 min, (2min + 1min) × 3 = 9 min.
+                // 9 min : la maquette annonçait 8 min, le client a tranché pour (2 + 1) × 3.
                 l: 'Force 6', force: 6, reps: 3,
                 steps: [
                   { l: 'Assis', t: m(2) },
@@ -97,7 +98,6 @@ const SPORTS = [
           {
             nom: 'Cardio',
             blocs: [{
-              // À CONFIRMER : maquette « 15 min (x10/12) ». 12 × 1 min = 12 min.
               l: 'Fractionné', reps: 12,
               steps: [
                 { l: 'Effort intense', t: 30 },
@@ -109,31 +109,37 @@ const SPORTS = [
         ],
       },
       {
-        nom: 'Séance 2',
-        desc: 'Côtes + seuil',
+        nom: 'Séance 2A',
+        desc: 'Côtes',
         phases: [
           { nom: 'Échauffement', blocs: [{ l: 'Footing normal', t: m(10) }] },
           {
-            nom: 'Cardio A — côtes',
+            nom: 'Cardio — côtes',
             blocs: [{
-              // À CONFIRMER : 8 à 10 montées. La descente n'a pas de durée dans
-              // la maquette → étape manuelle, l'utilisateur valide en bas.
-              l: 'Montées', reps: 9,
+              // ponytail: descente à 1 min, la valeur donnée par le client.
+              // S'il trouve le trou trop long sur le terrain, passer à 45.
+              l: 'Montées', reps: 10,
               steps: [
                 { l: 'Montée', t: 30 },
-                { l: 'Descente — retour au départ', manuel: true },
+                { l: 'Descente', t: m(1) },
               ],
             }],
           },
+          { nom: 'Retour au calme', blocs: [{ l: 'Footing très lent', t: m(10) }] },
+        ],
+      },
+      {
+        nom: 'Séance 2B',
+        desc: 'Vitesse max',
+        phases: [
+          { nom: 'Échauffement', blocs: [{ l: 'Footing normal', t: m(10) }] },
           {
-            nom: 'Cardio B — seuil',
-            blocs: [{
-              l: 'Blocs seuil', reps: 2,
-              steps: [
-                { l: 'Bloc au seuil', t: m(8) },
-                { l: 'Récupération', t: m(3) },
-              ],
-            }],
+            nom: 'Cardio — vitesse max',
+            blocs: [
+              { l: 'Vitesse max', t: m(8) },
+              { l: 'Récupération', t: m(3) },
+              { l: 'Vitesse max', t: m(8) },
+            ],
           },
           { nom: 'Retour au calme', blocs: [{ l: 'Footing très lent', t: m(10) }] },
         ],
@@ -142,7 +148,7 @@ const SPORTS = [
         nom: 'Séance 3',
         desc: 'Endurance',
         phases: [
-          { nom: 'Footing continu', blocs: [{ l: 'Footing continu (35 à 40 min)', t: m(37) }] },
+          { nom: 'Footing continu', blocs: [{ l: 'Footing continu', t: m(40) }] },
         ],
       },
     ],

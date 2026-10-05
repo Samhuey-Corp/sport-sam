@@ -162,7 +162,26 @@ function unlockAudio(){
   beep(880, 0.01, 0.001);
 }
 const tick = () => beep(880, 0.09, 0.25);
-const gong = () => { beep(523, 0.18, 0.35); setTimeout(() => beep(784, 0.35, 0.35), 150); };
+// Une salve de sonnerie : attaque franche, palier, coupure nette. Timbre carré,
+// qui perce mieux qu'une sinusoïde dans le haut-parleur d'un téléphone en poche.
+function salve(freq, at, dur = 0.14, vol = 0.28){
+  if (!actx) return;
+  const t = actx.currentTime + at;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = 'square'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+  g.gain.setValueAtTime(vol, t + dur * 0.7);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+// Sonnerie d'alarme : huit salves à deux tons sur ~1,4 s. Les salves sont
+// programmées d'avance dans l'horloge audio, donc le trille reste régulier même
+// si la page rame.
+const alarme = (salves = 4) => {
+  for (let i = 0; i < salves; i++) { salve(1047, i * 0.3); salve(784, i * 0.3 + 0.15); }
+};
 const buzz = (n) => navigator.vibrate && navigator.vibrate(n);
 
 /* ---------- veille écran ---------- */
@@ -216,10 +235,10 @@ function vueSports(){
   const test = $(`<button class="note test">Tester le son et la vibration</button>`);
   test.onclick = () => {
     unlockAudio();
-    gong(); buzz([150, 80, 150]);
+    alarme(); buzz([150, 80, 150]);
     test.textContent = navigator.vibrate
-      ? 'Tu dois entendre un gong et sentir une vibration'
-      : 'Tu dois entendre un gong (ce téléphone ne vibre pas)';
+      ? 'Tu dois entendre une sonnerie et sentir une vibration'
+      : 'Tu dois entendre une sonnerie (ce téléphone ne vibre pas)';
   };
   app.append(test);
 }
@@ -348,7 +367,7 @@ function vueRun(seance){
   }
   function finish(){
     stopRun();
-    gong(); buzz([200, 100, 200]);
+    alarme(7); buzz([200, 100, 200]);
     el.classList.add('done'); el.classList.remove('rest', 'manual');
     q('.ph').textContent = seance.nom;
     q('.bl').textContent = 'Séance terminée';
@@ -383,7 +402,7 @@ function vueRun(seance){
       const sec = Math.ceil(rem);
       if (sec <= 3 && sec >= 1 && sec !== run.lastBeep && !run.paused) { run.lastBeep = sec; tick(); }
       if (rem <= 0 && !run.paused) {
-        gong(); buzz([150, 80, 150]);
+        alarme(); buzz([150, 80, 150]);
         return setStep(run.i + 1, true);
       }
     } else {

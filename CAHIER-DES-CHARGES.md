@@ -134,8 +134,11 @@ séances à venir.
   *Tester le son*), comme l'exige iOS. Sur iPhone le son est classé « media »
   pour sortir même quand l'interrupteur silence est activé. L'iPhone ne sait pas
   vibrer depuis une page web : il sonne seulement. Android fait les deux.
+- Le signal de fin d'étape est une **sonnerie d'alarme** : un trille de huit
+  salves à deux tons sur environ 1,4 seconde, qui s'entend à distance du
+  téléphone. La fin de séance en joue une version plus longue.
 - L'écran d'accueil propose *Tester le son et la vibration* : un appui déclenche
-  le gong et la vibration de fin d'étape, sans lancer de séance.
+  la sonnerie et la vibration de fin d'étape, sans lancer de séance.
 - *Précédent* revient au début de l'étape en cours, puis à l'étape précédente.
 - Pause et reprise n'entraînent aucune dérive du chronomètre.
 - Les temps de récupération s'affichent en bleu, les efforts en orange.

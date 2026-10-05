@@ -4,7 +4,7 @@
  * ponytail: pas de stratégie par type de fichier, l'app fait 20 Ko en tout.
  * Bump CACHE à chaque déploiement pour purger l'ancienne version.
  */
-const CACHE = 'sport-sam-v4';
+const CACHE = 'sport-sam-v5';
 const FICHIERS = ['./', './index.html', './seances.js', './manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {

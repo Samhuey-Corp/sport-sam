@@ -137,8 +137,6 @@ séances à venir.
 - Le signal de fin d'étape est une **sonnerie d'alarme** : un trille de huit
   salves à deux tons sur environ 1,4 seconde, qui s'entend à distance du
   téléphone. La fin de séance en joue une version plus longue.
-- L'écran d'accueil propose *Tester le son et la vibration* : un appui déclenche
-  la sonnerie et la vibration de fin d'étape, sans lancer de séance.
 - *Précédent* revient au début de l'étape en cours, puis à l'étape précédente.
 - Pause et reprise n'entraînent aucune dérive du chronomètre.
 - Les temps de récupération s'affichent en bleu, les efforts en orange.

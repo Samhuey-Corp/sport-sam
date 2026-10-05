@@ -130,6 +130,12 @@ séances à venir.
   *Démarrer la séance* lance le chronomètre directement.
 - Une étape en attente se reconnaît au chrono grisé et à la mention
   « en attente » à côté de la consigne.
+- **Son et vibration.** Le son part du premier appui (*Démarrer la séance* ou
+  *Tester le son*), comme l'exige iOS. Sur iPhone le son est classé « media »
+  pour sortir même quand l'interrupteur silence est activé. L'iPhone ne sait pas
+  vibrer depuis une page web : il sonne seulement. Android fait les deux.
+- L'écran d'accueil propose *Tester le son et la vibration* : un appui déclenche
+  le gong et la vibration de fin d'étape, sans lancer de séance.
 - *Précédent* revient au début de l'étape en cours, puis à l'étape précédente.
 - Pause et reprise n'entraînent aucune dérive du chronomètre.
 - Les temps de récupération s'affichent en bleu, les efforts en orange.

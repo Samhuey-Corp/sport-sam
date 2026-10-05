@@ -60,6 +60,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;max-wi
   padding:10px 2px 16px;border-top:1px solid var(--line);margin-top:4px}
 .total b{color:var(--txt)}
 .note{color:var(--dim);font-size:14px;margin:0 0 16px}
+.test{display:block;width:100%;margin:8px 0 0;padding:14px;background:none;border:1px solid var(--line);border-radius:12px;text-align:center;font:inherit;font-size:14px;color:var(--dim)}
 
 .go{position:sticky;bottom:0;width:100%;padding:16px;border:0;border-radius:var(--r);
   background:var(--accent);color:#1a0d06;font:700 18px/1 inherit;cursor:pointer;margin-top:8px}
@@ -153,6 +154,9 @@ function beep(freq, dur, vol){
 }
 function unlockAudio(){
   // iOS exige un geste utilisateur pour autoriser le son : appelé depuis « Démarrer ».
+  // « playback » (Safari 16.4+) classe le son en media : il sort même bouton
+  // silence activé. Sans ça l'iPhone reste muet, interrupteur sur silencieux.
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
   if (actx.state === 'suspended') actx.resume();
   beep(880, 0.01, 0.001);
@@ -170,7 +174,10 @@ async function keepAwake(on){
   } catch (_) { /* non supporté : l'écran s'éteindra, sans conséquence sur le chrono */ }
 }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && run) keepAwake(true);
+  if (document.visibilityState !== 'visible') return;
+  // iOS suspend l'AudioContext en arrière-plan : le réveiller, sinon plus un son.
+  if (actx && actx.state === 'suspended') actx.resume();
+  if (run) keepAwake(true);
 });
 
 /* ---------- navigation ---------- */
@@ -206,6 +213,15 @@ function vueSports(){
     c.onclick = () => go(() => vueSeances(sp), sp.nom);
     app.append(c);
   }
+  const test = $(`<button class="note test">Tester le son et la vibration</button>`);
+  test.onclick = () => {
+    unlockAudio();
+    gong(); buzz([150, 80, 150]);
+    test.textContent = navigator.vibrate
+      ? 'Tu dois entendre un gong et sentir une vibration'
+      : 'Tu dois entendre un gong (ce téléphone ne vibre pas)';
+  };
+  app.append(test);
 }
 
 /* ---------- écran 2 : séances d'un sport ---------- */
